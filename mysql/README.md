@@ -31,7 +31,7 @@
 ### 参考资料
 
 - MySQL知识点与面试题目总结](https://juejin.im/post/6850037271233331208)
-
+- [数据库面试题](https://mp.weixin.qq.com/s/lRCf17ymF1DU0ZIErclebA)
 - 极客时间MySQL45讲
 - 《MySQL技术内幕-InnoDB存储引擎》
 
