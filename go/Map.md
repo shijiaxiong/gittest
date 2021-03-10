@@ -3,7 +3,6 @@
 - 数据结构包含`hmap`,`bmap`,`mapextra`
 - `bmap`的buckets值(指针)指向了`bmap`，存储具体的key和value
 - `bmap`中的key和value各自单独存放。这样可以在某些情况下省略掉padding字段，节省内存空间。
-- 当哈希表中存储的数据过多，单个桶已经装满时就会使用 `extra.nextOverflow` 中桶存储溢出的数据。溢出桶和正常桶在内存中是连续存储的。
 
 例如：
 
@@ -47,9 +46,8 @@ map[int64]int8 // 由于内存对齐，如果k-v格式存放会额外padding7个
 
 ## Q:如何进行扩容
 
-- 一个bucket装载8个key
+- 一个bucket装载8个key。当哈希表中存储的数据过多，单个桶已经装满时就会使用 `extra.nextOverflow` 中桶存储溢出的数据。溢出桶和正常桶在内存中是连续存储的。
 - 装载因子`loadFactor := count / (2^B)`
-- 
 
 ### 触发条件
 
@@ -59,12 +57,12 @@ map[int64]int8 // 由于内存对齐，如果k-v格式存放会额外padding7个
 ### 扩容步骤
 
 - 扩容的原因是溢出桶过多，那么此次扩容就是等量扩容。等量扩容创建的桶数量和之前一致。
-- `hashGrow`分配新的buckets，并将老的buckets挂载到oldbuckets字段。
-- 真正搬迁的动作在`growWork()`中，会在插入、修改、删除的时候搬迁buckets。
+- **分配**：`hashGrow`分配新的桶和预创建溢出桶，随后将原有的桶数组设置到oldbuckets上，并将新的空桶设置到buckets上，溢出桶也使用了相同的逻辑。
+- **迁移**：扩容不是原子的，而是通过`growWork()`触发。在扩容期间访问哈希表时(插入、修改、删除)会使用旧桶，向哈希表写入数据时会触发旧桶元素的分流。当哈希表的容量翻倍时，每个旧桶的元素都会流到新创建的两个桶中。
 
 ## Q:map的遍历
 
-1、找到初始化随机的bucket值和cell值
+1、找到初始化随机的bucket值和cell值。
 2、找到后判断是否发生过搬迁 b.tophash
 3、如果搬迁完成就遍历当前的bucket 和overflow。否则回到之前的oldbucket找到会迁移到当前bucket的值
 
@@ -76,15 +74,57 @@ map[int64]int8 // 由于内存对齐，如果k-v格式存放会额外padding7个
 4、bucket中不可以存新key，挂在bucket的overflow bucket上。
 5、mapassign函数最终返回了key所对应value的位置指针，进行赋值。
 
+## Q:map中key的删除
+
+1、对bucket和cell的两层循环找到对应的元素。
+
+2、 将key、value置为nil。
+
+3、 将count值减一，对应位置的tophash置为empty。
+
 ## Q:map可以边遍历边删除吗
 
-不可以。同时读写一个map，如果被测到，会直接panic
+不可以。同时读写一个map，如果被测到，会直接panic。
+
+**详解**：
+
+- 写操作的方法`mapassign`和删除的方法`mapdelete`都会对h.flags标记为hashWriting。
+
+- 读取map元素可能调用`mapaccess1`，`mapaccess2`，这两个方法都会检测读写冲突。当发现冲突后会panic。
+
+```go
+// src/runtime/hashmap.go
+func mapaccess1(t *maptype, h *hmap, key unsafe.Pointer) unsafe.Pointer
+func mapaccess2(t *maptype, h *hmap, key unsafe.Pointer) (unsafe.Pointer, bool)
+
+// 读写冲突检测
+if h.flags&hashWriting != 0 {
+	throw("concurrent map read and map write")
+}
+```
+
+
 
 ## Q:map的key可以是浮点型吗
 
 - 从语法上看除了slice、map、functions这几个类型，其他都可以做map的key。
 - 布尔值、数字、字符串、指针、通道、接口类型、结构体、只包含上述类型的数组。这些类型的共同特征是支持 == 和 != 操作符。
 - 使用float做key要慎重。 math.Nan()做key的时候哈希函数会生成一个随机数。
+
+## Q:可以对map的元素取地址吗
+
+无法对map的key或者value进行取地址。在编译阶段就会报错。
+
+```go
+package main
+import "fmt"
+func main() {
+    m := make(map[string]int)
+    fmt.Println(&m["hello world"])
+}
+```
+
+如果通过其他 hack 的方式，例如 unsafe.Pointer 等获取到了 key 或 value 的地址，也不能长期持有，因为一旦发生扩容，key 和 value 的位置就会改变，之前保存的地址也就失效了。
 
 # Reference
 
