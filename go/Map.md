@@ -1,5 +1,6 @@
 ## Q：MAP的内存模型
 
+- runtime/map.go、cmd/compile/internal/gc/reflect.go
 - 数据结构包含`hmap`,`bmap`,`mapextra`
 - `bmap`的buckets值(指针)指向了`bmap`，存储具体的key和value
 - `bmap`中的key和value各自单独存放。这样可以在某些情况下省略掉padding字段，节省内存空间。
