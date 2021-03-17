@@ -41,20 +41,29 @@
 
 
 
+
+
+## Q:栈的初始化
+
+- 栈空间在运行的时候包含两个重要的全局变量`runtime.stackpoll`和`runtime.stackLarge`，这两个变量分别表示全局的栈缓存和大栈缓存。前者可以分配小于 32KB 的内存，后者用来分配大于 32KB 的栈空间。
+
+- `runtime.stackpoll`和`runtime.stackLarge` 用于分配空间的全局变量都与内存管理单元 `runtime.mspan` 有关，我们可以认为 Go 语言的栈内存都是分配在堆上的，运行时初始化会调用 `runtime.stackinit` 初始化这些全局变量。
+- 在每一个`runtime.mcache`中都加入了栈缓存减少锁竞争。
+
 ## Q:goroutine的栈
 
 ### goroutine stack多大呢？
 
-每个goroutine（g0除外，g0分配64k）在初始化时stack大小都为2KB, 运行过程中会根据不同的场景做动态的调整。
+linux系统下每个goroutine（g0除外，g0分配64k）在初始化时stack大小都为2KB, 运行过程中会根据不同的场景做动态的调整。
 
 ### 栈扩容
 
 - 运行时会检查当前goroutine的栈内存空间是否充足。
 - 检测到当前栈大小不够用(SP大于可用内存空间)，调用morestack进行动态扩容。
-
 - `runtime.morestack`函数的主要功能是保存当前的栈的一些信息，然后转换成调度器的栈调用`runtime.newstack`
 - `runtime.newstack`分配一个2倍于当前大小的新栈。
-- 旧栈中的内容拷贝到新栈中，函数在新栈中运行。
+- 旧栈中的内容拷贝到新栈中，函数在新栈中运行(栈扩容后一个变量的内存地址会发生变化)。
+- 释放旧栈。
 
 ### 栈缩容
 
@@ -71,4 +80,7 @@
 - [Goroutine stack-扩缩容对服务的影响](https://studygolang.com/articles/10597)
 - [go语言连续栈](https://tiancaiamao.gitbooks.io/go-internals/content/zh/03.5.html)
 - [go栈内存管理](https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-stack-management/)
+- [解密Go协程的栈内存管理](https://juejin.cn/post/6871550379432574990)
+- [go堆栈内存管理-带图](https://studygolang.com/articles/25547)
+- 
 
