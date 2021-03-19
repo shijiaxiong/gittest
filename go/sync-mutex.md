@@ -53,6 +53,12 @@ const (
 
 - go的阻塞和唤醒是semacquire和semrelease。虽然命名上是sema，但实际用途却是一套阻塞唤醒机制。
 
+
+
+## Q：channel与mutex的比较
+
+
+
 ## Reference
 
 [sync-Mutex源码分析](https://reading.hidevops.io/articles/sync/sync_mutex_source_code_analysis/)
