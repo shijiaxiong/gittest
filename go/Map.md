@@ -1,9 +1,43 @@
 ## Q：MAP的内存模型
 
-- runtime/map.go、cmd/compile/internal/gc/reflect.go
-- 数据结构包含`hmap`,`bmap`,`mapextra`
+```go
+// runtime/map.go
+type hmap struct {
+  // 元素个数，调用 len(map) 时，直接返回此值
+	count     int
+	flags     uint8
+	// buckets 的对数 log_2，表示桶的个数
+	B         uint8
+	// overflow 的 bucket 近似数
+	noverflow uint16
+	// 哈希种子，计算 key 的哈希的时候会传入哈希函数
+	hash0     uint32
+  // 指向 buckets 数组，大小为 2^B
+  // 如果元素个数为0，就为 nil
+	buckets    unsafe.Pointer
+	// 扩容的时候，buckets 长度会是 oldbuckets 的两倍
+	oldbuckets unsafe.Pointer
+	// 指示扩容进度，小于此地址的 buckets 迁移完成
+	nevacuate  uintptr
+	extra *mapextra // optional fields
+}
+
+type mapextra struct {
+	overflow    *[]*bmap // 溢出桶
+	oldoverflow *[]*bmap
+	nextOverflow *bmap
+}
+
+// buckets指向的结构体
+type bmap struct {
+	tophash [bucketCnt]uint8
+}
+```
+
+- `hash0`是哈希的种子，在初始化的时候调用fastrand()创建。
 - `bmap`的buckets值(指针)指向了`bmap`，存储具体的key和value
 - `bmap`中的key和value各自单独存放。这样可以在某些情况下省略掉padding字段，节省内存空间。
+- 一个bmap只能存储8个键值对，当单个桶数据装满的时候就会使用溢出桶去存储数据。
 
 例如：
 
@@ -11,17 +45,24 @@
 map[int64]int8 // 由于内存对齐，如果k-v格式存放会额外padding7个字节
 ```
 
+
+
 ## Q: MAP是如何初始化的
 
-- 字面量创建：编译器优化。
-- 运行时创建:
+- 字面量创建(编译器会优化)、)运行时创建。
 - 无论字面量还是运行时`map`的创建调用了`runtime.makemap`函数，函数返回一个`*hmap`指针
 - `map`作为函数参数时，在函数参数对map的操作会影响`map`本身。(GO语言中的函数传参都是值传递!!!)
+- 当桶的数量小于 2的4次方(B<4) 时，由于数据较少、使用溢出桶的可能性较低，会省略创建的过程以减少额外开销；
+- 当桶的数量大于等于 2的4次方(B>=4))时，会额外创建 2的B−4次个溢出桶
+
+
 
 ## Q:哈希函数与冲突解决
 
 - `runtime/alg.go`会检测处理器是否支持aes,如果支持则使用aes hash,否则使用memhash。
 - 用拉链法(链表)解决hash冲突
+
+
 
 ## Q:key定位过程
 
@@ -40,10 +81,20 @@ map[int64]int8 // 由于内存对齐，如果k-v格式存放会额外padding7个
 10010111 - 151位tophash值
 ```
 
+
+
 ## Q:map的两种get操作
+
+```go
+// src/runtime/hashmap.go
+func mapaccess1(t *maptype, h *hmap, key unsafe.Pointer) unsafe.Pointer
+func mapaccess2(t *maptype, h *hmap, key unsafe.Pointer) (unsafe.Pointer, bool)
+```
 
 - 带comma和不带comma。带comma回有布尔型的返回值。
 - 根据key的不同类型，编译器还会将查找、插入、删除的函数用更具体的函数替换，优化效率。
+
+
 
 ## Q:如何进行扩容
 
