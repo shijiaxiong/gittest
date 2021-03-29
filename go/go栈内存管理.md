@@ -37,6 +37,11 @@
 - `go build -gcflags '-m -l' main.go`(-m打印逃逸分析信息，-l禁止内联编译)
 - `go tool compile -S main.go | grep runtime.newobject`（汇编代码中搜runtime.newobject指令，该指令用于生成堆对象）
 
+### 逃逸分析的作用
+
+- 减少GC的压力，在栈上的变量，函数退出后系统会直接回收，不需要标记后再清除。
+- 减少堆内存分配的开销，提高程序运行速度。减少内存碎片的产生。
+
 ### 函数传值使用值传递好，还是指针传递好？
 
 
