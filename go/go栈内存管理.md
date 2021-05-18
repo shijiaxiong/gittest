@@ -46,14 +46,13 @@
 
 
 
-
-
 ## Q:栈的初始化
 
 - 栈空间在运行的时候包含两个重要的全局变量`runtime.stackpoll`和`runtime.stackLarge`，这两个变量分别表示全局的栈缓存和大栈缓存。前者可以分配小于 32KB 的内存，后者用来分配大于 32KB 的栈空间。
-
 - `runtime.stackpoll`和`runtime.stackLarge` 用于分配空间的全局变量都与内存管理单元 `runtime.mspan` 有关，我们可以认为 Go 语言的栈内存都是分配在堆上的，运行时初始化会调用 `runtime.stackinit` 初始化这些全局变量。
 - 在每一个`runtime.mcache`中都加入了栈缓存减少锁竞争。
+
+
 
 ## Q:goroutine的栈
 
@@ -81,11 +80,10 @@ linux系统下每个goroutine（g0除外，g0分配64k）在初始化时stack大
 
 ## Reference
 
-- [为何说Goroutine的栈空间可以无限大](http://blog.xiayf.cn/2014/01/17/goroutine-stack-infinite/)
-- [Goroutine stack-扩缩容对服务的影响](https://studygolang.com/articles/10597)
-- [go语言连续栈](https://tiancaiamao.gitbooks.io/go-internals/content/zh/03.5.html)
-- [go栈内存管理](https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-stack-management/)
-- [解密Go协程的栈内存管理](https://juejin.cn/post/6871550379432574990)
+- [为何说Goroutine的栈空间可以无限大](https://app.yinxiang.com/shard/s43/nl/13675070/d179b0d4-0b96-48ef-a260-c4a67b2321ca)
+- [Goroutine stack-扩缩容对服务的影响](https://app.yinxiang.com/shard/s43/nl/13675070/2a8e09c6-7c14-4500-af10-e87c3d399c47)
+- [go语言连续栈](https://app.yinxiang.com/shard/s43/nl/13675070/1aa41d30-0c14-4dc2-aced-d7dbb12ad758)
+- [go栈内存管理](https://app.yinxiang.com/shard/s43/nl/13675070/5b579d15-a62b-4546-ab38-50a44aea2ed6)
+- [解密Go协程的栈内存管理](https://app.yinxiang.com/shard/s43/nl/13675070/41ae19bf-669c-4be1-83e6-cf44dfbab6d0)
 - [go堆栈内存管理-带图](https://studygolang.com/articles/25547)
-- 
 
