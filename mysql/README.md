@@ -49,3 +49,15 @@ https://developer.aliyun.com/article/59256http://mysql.taobao.org/monthly/2016/0
 
 各个框架比较zookeeper、etcd、Eureka(bilibili-discovery参考实现)
 
+## Q:Mysql性能如何
+
+> MySQL与版本、机器配置、架构有比较大的关系。
+
+主从版本
+
+SysBench参数：--table_size=25000 --tables=250。
+
+
+
+[性能测试](https://help.aliyun.com/document_detail/109378.html?spm=a2c4g.11186623.6.1701.1cb01decGUUbLB)
+
