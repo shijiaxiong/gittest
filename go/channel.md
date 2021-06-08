@@ -6,8 +6,8 @@
 
 ## Q：channel底层的数据结构是什么
 
-- ring buffer
-- 环形链表
+- 缓冲型的channel底层是循环数组。
+- 接收和等待的G队列是链表。
 
 ```go
 // runtime/chan.go
@@ -20,7 +20,7 @@ type hchan struct {
 	elemtype *_type         // chan中元素类型
 	sendx    uint           // 已发送元素在ring buffer中的索引
 	recvx    uint           // 已接收元素在ring buffer中的索引
-	recvq    waitq          // 等待接收的goroutine队列
+	recvq    waitq          // 等待接收的goroutine队列，链表
 	sendq    waitq          // 等待接收的goroutine队列
 
 	lock     mutex          // 锁
