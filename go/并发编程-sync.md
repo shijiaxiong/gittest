@@ -16,7 +16,17 @@
 
 
 
-## Q:sync.Mutex 互斥锁
+## Q:sync.Mutex
+
+- mutex是互斥锁，不区分读写，无论是读写都是互斥的。
+
+- 两种工作模式：
+
+  - 正常模式：锁的等待者会按照先进先出的顺序获取锁。刚唤醒的锁要与新来的goroutine竞争。
+
+  - 饥饿模式：当前的goroutine将mutex所有权移直接交给等待队列最前端的goroutine。
+
+    
 
 一般情况下互斥锁比atomic慢的原因：互斥锁会有goroutine的上下文切换。
 
@@ -42,7 +52,9 @@ func main() {
 }
 ```
 
-## RWMutex 读写互斥锁
+
+
+## Q:RWMutex 读写互斥锁
 
 互斥锁是完全互斥的，但是有很多实际的场景下是读多写少的，当我们并发的去读取一个资源不涉及资源修改的时候是没有必要加锁的，这种场景下使用读写锁是更好的一种选择。读写锁在Go语言中使用sync包中的RWMutex类型。
 
@@ -119,6 +131,8 @@ type entry struct {
 - 读`Map.read`使用`atomic.value`，无需加锁。写
 
 [go sync.map的实现细节](https://app.yinxiang.com/shard/s43/nl/13675070/24f64918-c715-4f87-a419-5a212b9e323b)
+
+[sync.map ](https://blog.csdn.net/u010853261/article/details/103848666)
 
 
 

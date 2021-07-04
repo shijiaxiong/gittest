@@ -14,7 +14,9 @@
 
 ## Q:为什么可以捕获panic，捕获后底层是怎么处理的
 
-> panic->defer->recover
+> panic->defer->recover，如果recover中再次有异常，会退出程序。
+>
+> 如果没有捕获异常，panic退出时会打印调用栈，最终调用exit(-2)退出整个进程。
 
 - 编译器会在编译阶段，将panic关键字转换成`runtime.gopanic`，执行过程中的panic其实是在调用`runtime.gopanic` 函数。
 - 在运行过程中遇到 `runtime.gopanic` 方法时，会从 Goroutine 的链表依次取出 `runtime._defer` 结构体并执行。
