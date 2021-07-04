@@ -9,13 +9,9 @@
 
 
 
-## Q: HTTPS建立连接的过程?
-
-
-
 ## Q:HTTP和TCP的区别？
 
-- TCP是传输层协议，保证通信数据的完整性和可靠性。
+- TCP是传输层协议，保证数据的可靠性。
 - HTTP是应用层协议，建立在TCP连接之上，主要规定客户端和服务端的数据传输格式。
 
 
@@ -24,7 +20,7 @@
 
 #### HTTP 1.0
 
-- 默认不支持长连接，长连接需要设置`Connection: keep-alive`指定。
+- 默认87不支持长连接，长连接需要设置`Connection: keep-alive`指定。
 - **缓存处理：** 使用`header`里的`If-Modified-Since,Expires`来做为缓存判断的标准。
 
 #### HTTP 1.1
@@ -59,7 +55,7 @@
 
 ## Q:用netstat看tcp连接的时候有关注过time_wait和close_wait吗？
 
-- `TIME_WAIT`产生的点：主动关闭的一方收到FIN包，会回复ACK，进入`TIME_WAIT`状态。等待2MSL时间结束。
+- `TIME_WAIT`产生的点：主动关闭连接的一方收到FIN包，会回复ACK，进入`TIME_WAIT`状态。等待2MSL时间结束。
 - `CLOSE_WAIT` 产生的点：被动关闭的一方收到FIN包后，协议层回复ACK，然后进入`CLOSE_WAIT`状态，等待应用程序调用close()
 
 
@@ -93,19 +89,11 @@
 
 
 
+## Q:TCP连接意外中断？
 
+- 检测方式：TCP实现的keepalive，开启需要消耗额外的带宽和流量，默认是关闭状态。另一种是应用层实现心跳包。
 
-
-
-
-
-
-
-
-
-
-
-
+[TCP连接意外中断怎么检测](https://blog.csdn.net/shayne000/article/details/95894135)
 
 
 
