@@ -2,9 +2,9 @@
 
 - 0.7版本：只提供了最基础的消息队列功能。
 - 0.8版本：引入了副本机制，至此Kafka成为了一个真正意义上完备的分布式高可靠消息队列解决方案。
-- 0.9版本(当前使用版本)：增加了基础的安全认证/权限功能；使用java重写了新版本消费者API；引入Kafka Connect组件。
+- 0.9版本：增加了基础的安全认证/权限功能；使用java重写了新版本消费者API；引入Kafka Connect组件。
 - 0.10版本：引入Kafka Streams，正式升级成分布式流处理平台。
-- 0.11版本：提供了幂等性ProducerApi 以及事务API；对Kafka消息格式做了重构。
+- 0.11版本(当前使用版本)：提供了幂等性ProducerApi 以及事务API；对Kafka消息格式做了重构。
 - 1.0和2.0版本：主要还是Kafka Streams的各种改进。
 
 
@@ -41,8 +41,8 @@
 
 ## Q:Kafka高可用性如何做的
 
-- Kafka集群由多个 broker 组成，每个 broker 是一个节点；对于每一个 topic 可以划分为多个 partition，每个 partition 负责存储一部分数据。
-- Kafka 0.8之后，引入了多副本机制。包括一个Leader副本和多个Follower副本。所有副本会选举一个 leader 出来，那么生产和消费都跟这个 leader 打交道，然后其他副本就是 follower。写的时候，leader 会负责把数据同步到所有 follower 上去，读的时候就直接读 leader 上的数据即可。
+- **消息分布式：** Kafka集群由多个 broker 组成，每个 broker 是一个节点；对于每一个 topic 可以划分为多个 partition，每个 partition 负责存储一部分数据。
+- **多副本机制：** Kafka 0.8之后，引入了多副本机制。包括一个Leader副本和多个Follower副本。所有副本会选举一个 leader 出来，那么生产和消费都跟这个 leader 打交道，然后其他副本就是 follower。写的时候，leader 会负责把数据同步到所有 follower 上去，读的时候就直接读 leader 上的数据即可。
   - 如果某个broker宕机，可以使用其他副本机器。如果这个broker上还有某个partition的leader，则会从 follower 中**重新选举**一个新的 leader 出来。
 - leader和follower之间的数据同步通过Ack参数保证。
   - 参数为 0：生产者只管发送，不管是否落盘。如果消息传递过程中，broker宕机，则会造成数据丢失。
