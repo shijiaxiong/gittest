@@ -4,6 +4,8 @@
 - Goroutine 和 Channel 分别对应 CSP 中的实体和传递信息的媒介，Goroutine 之间会通过 Channel 传递数据。
 - Go中也可以使用共享内存加互斥锁的方式进行通信。
 
+
+
 ## Q：channel底层的数据结构是什么
 
 - 缓冲型的channel底层是循环数组。
@@ -66,7 +68,8 @@ type waitq struct {
 - c.closed = 1
 - 处理接收者队列
 - 处理发送者队列。如果发送者队列有数据会panic
-- 
+
+  
 
 ## Q:channel发送和接收元素的本质是什么
 
