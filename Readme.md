@@ -1,3 +1,29 @@
+## Mysql
+
+> MySQL与版本、机器配置、架构有比较大的关系。
+
+主从版本
+
+mysql 5.7
+
+SysBench参数：--table_size=25000 --tables=250。
+
+[性能测试](https://help.aliyun.com/document_detail/109378.html?spm=a2c4g.11186623.6.1701.1cb01decGUUbLB)
+
+
+
+##### Redis 
+
+- 5.0集群版
+
+
+
+#### Kafka
+
+- 0.11
+
+
+
 ## 脑图
 
 ![技能树](./技能树.png)

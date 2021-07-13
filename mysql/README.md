@@ -18,12 +18,6 @@
 
 ### 主从复制
 
-## Q:MySQL 主从复制原理的是啥？
-
-主库将变更写入 binlog 日志，然后从库连接到主库之后，从库有一个 IO 线程，将主库的 binlog 日志拷贝到自己本地，写入一个 relay 中继日志中。接着从库中有一个 SQL 线程会从中继日志读取 binlog，然后执行 binlog 日志中的内容，也就是在自己本地再次执行一遍 SQL，这样就可以保证自己跟主库的数据是一样的。
-
-![](./picture/mysql-master-slave.png)
-
 
 
 ### 参考资料
@@ -48,16 +42,4 @@ https://developer.aliyun.com/article/59256http://mysql.taobao.org/monthly/2016/0
 #### 服务发现
 
 各个框架比较zookeeper、etcd、Eureka(bilibili-discovery参考实现)
-
-## Q:Mysql性能如何
-
-> MySQL与版本、机器配置、架构有比较大的关系。
-
-主从版本
-
-SysBench参数：--table_size=25000 --tables=250。
-
-
-
-[性能测试](https://help.aliyun.com/document_detail/109378.html?spm=a2c4g.11186623.6.1701.1cb01decGUUbLB)
 

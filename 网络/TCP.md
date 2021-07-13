@@ -190,22 +190,32 @@ TCP 有一个特别的概念叫做**半关闭**，这个概念是说，TCP 的�
 
 在 2MSL 时间周期之内（也就是一分钟之内），同一个五元组的连接无法被使用。
 
-### 大量的TIME-WAIT造成的影响
+### 大量的TIME-WAIT造成的影响(超过6W)
 
 - 在高并发短连接的TCP服务上，服务器处理完请求后主动关闭连接。大量的SOCKET会处于TIME-WAIT阶段。
 - 如果客户端的并发量持续很高，此时部分客户端就会显示连接不上。
 
 解决方案
 
-- 增加服务器。
 - 尽可能使用长连接。
-- 修改内核参数，打开系统的TIMEWAIT重用和快速回收。
+- 设置服务器的`ip_local_port_range= 1024 65535`， 至少保证6W个连接，一秒可以处理1000并发。 
+- 增加服务器。
+- 修改内核参数，打开系统的TIMEWAIT重用和销毁。
+  - **net.ipv4.tcp_tw_recycle = 1:** 销毁TCP连接，主要针对服务端。
+  - **net.ipv4.tcp_tw_reuse = 1:** 重用TCP连接，主要针对客户端。如果收到包的发送时间在重用连接之前则抛弃。
+  - **net.ipv4.tcp_timestamps = 1：**  TCP option （选项字段），它由一共 8 个字节表示时间戳，其中第一个 4 字节字段用来保存**发送该数据包的时间**，第二个 4 字节字段用来保存**最近一次接收对方发送到达数据的时间**。
 
 
 
 ### Reference
 
 [TIME WAIT状态详解](https://app.yinxiang.com/shard/s43/nl/13675070/9ef32dbc-5f39-4e84-b863-267def5e9b4f)
+
+[TCP连接的TIME_WAIT和CLOSE_WAIT ](https://app.yinxiang.com/shard/s43/nl/13675070/092eb018-7063-4a88-9bdb-5a9fa96c6709)
+
+[TIME_WAIT 参数调优细节](https://app.yinxiang.com/shard/s43/nl/13675070/01fb2850-0e49-46ad-81df-1636b7170211)
+
+
 
 ## Q:TCP 可靠性交付的实现
 
