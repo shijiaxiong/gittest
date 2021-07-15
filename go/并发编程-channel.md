@@ -232,6 +232,16 @@ goroutine处于发送或接收阻塞状态，但一直未唤醒。垃圾回收�
 
 
 
+## Q:选channel 还是mutex?
+
+- 并发间通信或者同步都可以用 channel，但是有时候 mutex 可能更清晰更符合直觉，如果对同步性能有要求也是选 mutex。
+- 如果并发间需要交换数据的所有权、分发任务、异步交流结果，比如把一个消息传递给对方，选 channel。如果是对一段代码或者资源的抢占，选 mutex。
+- channel锁性能比mutex差。
+
+![](./static/WX20210714-230533@2x.png)
+
+
+
 ## Reference
 
 [码农桃花源-深度解密channel](https://www.qcrao.com/2019/07/22/dive-into-go-channel/)
